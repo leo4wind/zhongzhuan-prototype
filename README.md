@@ -27,3 +27,5 @@ npm run build
 - `CLOUDFLARE_ACCOUNT_ID`
 
 Cloudflare Pages 项目名使用 `zhongzhuan-prototype`，发布目录为 `dist`。
+
+工作流会在推送到 `main` 时构建并部署；如果 Pages 项目尚不存在，会先尝试创建 Direct Upload 项目。
