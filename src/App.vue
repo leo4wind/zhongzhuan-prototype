@@ -27,11 +27,32 @@ const stations = [
   { id: 'SX-C', name: '绍兴城配仓', city: '绍兴', load: 74, risk: '关注', eta: '18:55' }
 ]
 
-const waves = [
-  { id: 'W-1800', name: '晚高峰干线波次', progress: 76, status: '执行中', volume: '12,480 件' },
-  { id: 'W-1930', name: '省内城配波次', progress: 44, status: '预配载', volume: '7,260 件' },
-  { id: 'W-2130', name: '跨区航空截单', progress: 18, status: '待到港', volume: '3,900 件' }
-]
+const waveViews = {
+  全链路: {
+    summary: '入港、分拣、出港整体波次',
+    waves: [
+      { id: 'W-1800', name: '晚高峰干线波次', progress: 76, status: '执行中', volume: '12,480 件' },
+      { id: 'W-1930', name: '省内城配波次', progress: 44, status: '预配载', volume: '7,260 件' },
+      { id: 'W-2130', name: '跨区航空截单', progress: 18, status: '待到港', volume: '3,900 件' }
+    ]
+  },
+  入港: {
+    summary: '卸车、称重、入库缓冲波次',
+    waves: [
+      { id: 'IN-1745', name: '华东入港卸车', progress: 91, status: '清尾中', volume: '8,240 件' },
+      { id: 'IN-1830', name: '省内到港扫描', progress: 63, status: '执行中', volume: '5,780 件' },
+      { id: 'IN-1915', name: '冷链优先入库', progress: 37, status: '排队中', volume: '1,460 件' }
+    ]
+  },
+  出港: {
+    summary: '集包、装车、发车截单波次',
+    waves: [
+      { id: 'OUT-1845', name: '上海青浦出港', progress: 88, status: '可发车', volume: '4,920 件' },
+      { id: 'OUT-1905', name: '苏州吴江改派', progress: 56, status: '待换车', volume: '3,180 件' },
+      { id: 'OUT-1940', name: '南京江宁预配', progress: 29, status: '补货中', volume: '2,640 件' }
+    ]
+  }
+}
 
 const lanes = [
   { name: 'A01 入港卸车', rate: 92, queue: 6, tone: 'green' },
@@ -58,6 +79,8 @@ const activeView = ref('全链路')
 const query = ref('')
 
 const selectedStation = computed(() => stations.find((station) => station.id === selectedStationId.value))
+const currentWaveView = computed(() => waveViews[activeView.value])
+const currentWaves = computed(() => currentWaveView.value.waves)
 const filteredRoutes = computed(() => {
   const keyword = query.value.trim()
   if (!keyword) return routes
@@ -119,7 +142,10 @@ const filteredRoutes = computed(() => {
     <section class="workspace">
       <aside class="panel waves">
         <div class="panel-title">
-          <h2>波次进度</h2>
+          <div>
+            <h2>波次进度</h2>
+            <p>{{ currentWaveView.summary }}</p>
+          </div>
           <button type="button" title="波次分析"><BarChart3 :size="17" /></button>
         </div>
         <div class="tabs" role="tablist" aria-label="视图模式">
@@ -134,7 +160,7 @@ const filteredRoutes = computed(() => {
           </button>
         </div>
         <div class="wave-list">
-          <article v-for="wave in waves" :key="wave.id" class="wave-item">
+          <article v-for="wave in currentWaves" :key="wave.id" class="wave-item">
             <div>
               <strong>{{ wave.name }}</strong>
               <span>{{ wave.id }} · {{ wave.volume }}</span>
